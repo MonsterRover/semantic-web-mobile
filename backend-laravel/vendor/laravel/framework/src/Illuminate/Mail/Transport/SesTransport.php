@@ -4,6 +4,7 @@ namespace Illuminate\Mail\Transport;
 
 use Aws\Exception\AwsException;
 use Aws\Ses\SesClient;
+use Illuminate\Support\Collection;
 use Stringable;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Header\MetadataHeader;
@@ -50,6 +51,10 @@ class SesTransport extends AbstractTransport implements Stringable
         $options = $this->options;
 
         if ($message->getOriginalMessage() instanceof Message) {
+            if ($listManagementOptions = $this->listManagementOptions($message)) {
+                $options['ListManagementOptions'] = $listManagementOptions;
+            }
+
             foreach ($message->getOriginalMessage()->getHeaders()->all() as $header) {
                 if ($header instanceof MetadataHeader) {
                     $options['Tags'][] = ['Name' => $header->getKey(), 'Value' => $header->getValue()];
@@ -62,11 +67,11 @@ class SesTransport extends AbstractTransport implements Stringable
                 array_merge(
                     $options, [
                         'Source' => $message->getEnvelope()->getSender()->toString(),
-                        'Destinations' => collect($message->getEnvelope()->getRecipients())
-                                ->map
-                                ->toString()
-                                ->values()
-                                ->all(),
+                        'Destinations' => (new Collection($message->getEnvelope()->getRecipients()))
+                            ->map
+                            ->toString()
+                            ->values()
+                            ->all(),
                         'RawMessage' => [
                             'Data' => $message->toString(),
                         ],
@@ -87,6 +92,21 @@ class SesTransport extends AbstractTransport implements Stringable
 
         $message->getOriginalMessage()->getHeaders()->addHeader('X-Message-ID', $messageId);
         $message->getOriginalMessage()->getHeaders()->addHeader('X-SES-Message-ID', $messageId);
+    }
+
+    /**
+     * Extract the SES list management options, if applicable.
+     *
+     * @param  \Symfony\Component\Mailer\SentMessage  $message
+     * @return array|null
+     */
+    protected function listManagementOptions(SentMessage $message)
+    {
+        if ($header = $message->getOriginalMessage()->getHeaders()->get('X-SES-LIST-MANAGEMENT-OPTIONS')) {
+            if (preg_match("/^(contactListName=)*(?<ContactListName>[^;]+)(;\s?topicName=(?<TopicName>.+))?$/ix", $header->getBodyAsString(), $listManagementOptions)) {
+                return array_filter($listManagementOptions, fn ($e) => in_array($e, ['ContactListName', 'TopicName']), ARRAY_FILTER_USE_KEY);
+            }
+        }
     }
 
     /**

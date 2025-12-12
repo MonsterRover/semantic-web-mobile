@@ -127,7 +127,7 @@ class ControllerMakeCommand extends GeneratorCommand
             $replace['abort(404);'] = '//';
         }
 
-        $baseControllerExists = class_exists($rootNamespace.'Http\Controllers\Controller');
+        $baseControllerExists = file_exists($this->getPath("{$rootNamespace}Http\Controllers\Controller"));
 
         if ($baseControllerExists) {
             $replace["use {$controllerNamespace}\Controller;\n"] = '';
@@ -136,11 +136,9 @@ class ControllerMakeCommand extends GeneratorCommand
             $replace["use {$rootNamespace}Http\Controllers\Controller;\n"] = '';
         }
 
-        $class = str_replace(
+        return str_replace(
             array_keys($replace), array_values($replace), parent::buildClass($name)
         );
-
-        return $class;
     }
 
     /**

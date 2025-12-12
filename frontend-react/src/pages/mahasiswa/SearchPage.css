@@ -1,0 +1,213 @@
+.search-page {
+  min-height: 100vh;
+}
+
+.search-hero {
+  background: linear-gradient(135deg, var(--primary-pink), var(--accent));
+  padding: var(--spacing-2xl) 0;
+  color: white;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  color: white;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.95;
+}
+
+.search-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+  box-shadow: var(--shadow-lg);
+  gap: var(--spacing-sm);
+}
+
+.search-icon {
+  font-size: 1.5rem;
+  color: var(--primary-pink);
+  margin-left: var(--spacing-sm);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  font-size: 1rem;
+  padding: var(--spacing-sm);
+  outline: none;
+  color: var(--text-dark);
+}
+
+.search-input::placeholder {
+  color: var(--text-light);
+}
+
+.filter-toggle {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+.filter-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.filters-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+}
+
+.filter-group label {
+  color: white;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  display: block;
+}
+
+.search-results {
+  margin-top: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.results-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.results-header h2 {
+  color: var(--primary-pink);
+  margin-bottom: var(--spacing-md);
+}
+
+.results-info {
+  background: var(--pink-lighter);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+}
+
+.related-topics {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.topic-tag {
+  background: var(--accent);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.no-results {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-medium);
+}
+
+.search-placeholder {
+  text-align: center;
+  padding: var(--spacing-2xl) 0;
+  margin: var(--spacing-2xl) 0;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  color: var(--pink-light);
+  margin-bottom: var(--spacing-lg);
+}
+
+.search-placeholder h3 {
+  color: var(--primary-pink);
+  margin-bottom: var(--spacing-sm);
+}
+
+.search-placeholder p {
+  color: var(--text-medium);
+  margin-bottom: var(--spacing-xl);
+}
+
+.search-examples {
+  margin-top: var(--spacing-xl);
+}
+
+.example-tags {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+}
+
+.example-tag {
+  background: var(--pink-lighter);
+  color: var(--primary-pink);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-weight: 500;
+}
+
+.example-tag:hover {
+  background: var(--primary-pink);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.loading-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .search-input-group {
+    flex-direction: column;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -5,6 +5,7 @@ namespace Illuminate\Database\Schema\Grammars;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use LogicException;
 
@@ -69,6 +70,23 @@ class PostgresGrammar extends Grammar
     }
 
     /**
+     * Compile the query to determine if the given table exists.
+     *
+     * @param  string  $schema
+     * @param  string  $table
+     * @return string
+     */
+    public function compileTableExists($schema, $table)
+    {
+        return sprintf(
+            'select exists (select 1 from pg_class c, pg_namespace n where '
+            ."n.nspname = %s and c.relname = %s and c.relkind in ('r', 'p') and n.oid = c.relnamespace)",
+            $this->quoteString($schema),
+            $this->quoteString($table)
+        );
+    }
+
+    /**
      * Compile the query to determine the tables.
      *
      * @return string
@@ -123,7 +141,7 @@ class PostgresGrammar extends Grammar
             .'(select tc.collcollate from pg_catalog.pg_collation tc where tc.oid = a.attcollation) as collation, '
             .'not a.attnotnull as nullable, '
             .'(select pg_get_expr(adbin, adrelid) from pg_attrdef where c.oid = pg_attrdef.adrelid and pg_attrdef.adnum = a.attnum) as default, '
-            .'a.attgenerated as generated, '
+            .(version_compare($this->connection?->getServerVersion(), '12.0', '<') ? "'' as generated, " : 'a.attgenerated as generated, ')
             .'col_description(c.oid, a.attnum) as comment '
             .'from pg_attribute a, pg_class c, pg_type t, pg_namespace n '
             .'where c.relname = %s and n.nspname = %s and a.attnum > 0 and a.attrelid = c.oid and a.atttypid = t.oid and n.oid = c.relnamespace '
@@ -214,9 +232,9 @@ class PostgresGrammar extends Grammar
      */
     public function compileAdd(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf('alter table %s %s',
+        return sprintf('alter table %s add column %s',
             $this->wrapTable($blueprint),
-            implode(', ', $this->prefixArray('add column', $this->getColumns($blueprint)))
+            $this->getColumn($blueprint, $command->column)
         );
     }
 
@@ -249,29 +267,28 @@ class PostgresGrammar extends Grammar
      */
     public function compileChange(Blueprint $blueprint, Fluent $command, Connection $connection)
     {
-        $columns = [];
+        $column = $command->column;
 
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $changes = ['type '.$this->getType($column).$this->modifyCollate($blueprint, $column)];
+        $changes = ['type '.$this->getType($column).$this->modifyCollate($blueprint, $column)];
 
-            foreach ($this->modifiers as $modifier) {
-                if ($modifier === 'Collate') {
-                    continue;
-                }
-
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $constraints = (array) $this->{$method}($blueprint, $column);
-
-                    foreach ($constraints as $constraint) {
-                        $changes[] = $constraint;
-                    }
-                }
+        foreach ($this->modifiers as $modifier) {
+            if ($modifier === 'Collate') {
+                continue;
             }
 
-            $columns[] = implode(', ', $this->prefixArray('alter column '.$this->wrap($column), $changes));
+            if (method_exists($this, $method = "modify{$modifier}")) {
+                $constraints = (array) $this->{$method}($blueprint, $column);
+
+                foreach ($constraints as $constraint) {
+                    $changes[] = $constraint;
+                }
+            }
         }
 
-        return 'alter table '.$this->wrapTable($blueprint).' '.implode(', ', $columns);
+        return sprintf('alter table %s %s',
+            $this->wrapTable($blueprint),
+            implode(', ', $this->prefixArray('alter column '.$this->wrap($column), $changes))
+        );
     }
 
     /**
@@ -647,7 +664,7 @@ class PostgresGrammar extends Grammar
     public function escapeNames($names)
     {
         return array_map(static function ($name) {
-            return '"'.collect(explode('.', $name))
+            return '"'.(new Collection(explode('.', $name)))
                 ->map(fn ($segment) => trim($segment, '\'"'))
                 ->implode('"."').'"';
         }, $names);
@@ -1052,6 +1069,19 @@ class PostgresGrammar extends Grammar
         }
 
         return 'geography';
+    }
+
+    /**
+     * Create the column definition for a vector type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeVector(Fluent $column)
+    {
+        return isset($column->dimensions) && $column->dimensions !== ''
+            ? "vector({$column->dimensions})"
+            : 'vector';
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace Illuminate\Foundation\Bootstrap;
 
-use Exception;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Collection;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
@@ -62,11 +62,17 @@ class LoadConfiguration
     {
         $files = $this->getConfigurationFiles($app);
 
-        // if (! isset($files['app'])) {
-        //     throw new Exception('Unable to load the "app" configuration file.');
-        // }
+        $shouldMerge = method_exists($app, 'shouldMergeFrameworkConfiguration')
+            ? $app->shouldMergeFrameworkConfiguration()
+            : true;
 
-        $base = $this->getBaseConfiguration();
+        $base = $shouldMerge
+            ? $this->getBaseConfiguration()
+            : [];
+
+        foreach ((new Collection($base))->diffKeys($files) as $name => $config) {
+            $repository->set($name, $config);
+        }
 
         foreach ($files as $name => $path) {
             $base = $this->loadConfigurationFile($repository, $name, $path, $base);
@@ -88,7 +94,7 @@ class LoadConfiguration
      */
     protected function loadConfigurationFile(RepositoryContract $repository, $name, $path, array $base)
     {
-        $config = require $path;
+        $config = (fn () => require $path)();
 
         if (isset($base[$name])) {
             $config = array_merge($base[$name], $config);
@@ -119,7 +125,7 @@ class LoadConfiguration
             'auth' => ['guards', 'providers', 'passwords'],
             'broadcasting' => ['connections'],
             'cache' => ['stores'],
-            'database' => ['connections', 'redis'],
+            'database' => ['connections'],
             'filesystems' => ['disks'],
             'logging' => ['channels'],
             'mail' => ['mailers'],
@@ -138,6 +144,10 @@ class LoadConfiguration
         $files = [];
 
         $configPath = realpath($app->configPath());
+
+        if (! $configPath) {
+            return [];
+        }
 
         foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
             $directory = $this->getNestedDirectory($file, $configPath);

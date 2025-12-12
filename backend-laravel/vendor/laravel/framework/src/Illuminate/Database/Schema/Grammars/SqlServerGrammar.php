@@ -38,6 +38,16 @@ class SqlServerGrammar extends Grammar
     protected $fluentCommands = ['Default'];
 
     /**
+     * Compile a query to determine the name of the default schema.
+     *
+     * @return string
+     */
+    public function compileDefaultSchema()
+    {
+        return 'select schema_name()';
+    }
+
+    /**
      * Compile a create database command.
      *
      * @param  string  $name
@@ -63,6 +73,21 @@ class SqlServerGrammar extends Grammar
         return sprintf(
             'drop database if exists %s',
             $this->wrapValue($name)
+        );
+    }
+
+    /**
+     * Compile the query to determine if the given table exists.
+     *
+     * @param  string|null  $schema
+     * @param  string  $table
+     * @return string
+     */
+    public function compileTableExists($schema, $table)
+    {
+        return sprintf(
+            'select (case when object_id(%s, \'U\') is null then 0 else 1 end) as [exists]',
+            $this->quoteString($schema ? $schema.'.'.$table : $table)
         );
     }
 
@@ -115,7 +140,7 @@ class SqlServerGrammar extends Grammar
             .'join sys.schemas as scm on obj.schema_id = scm.schema_id '
             .'left join sys.default_constraints def on col.default_object_id = def.object_id and col.object_id = def.parent_object_id '
             ."left join sys.extended_properties as prop on obj.object_id = prop.major_id and col.column_id = prop.minor_id and prop.name = 'MS_Description' "
-            .'left join sys.computed_columns as com on col.column_id = com.column_id '
+            .'left join sys.computed_columns as com on col.column_id = com.column_id and col.object_id = com.object_id '
             ."where obj.type in ('U', 'V') and obj.name = %s and scm.name = %s "
             .'order by col.column_id',
             $this->quoteString($table),
@@ -203,7 +228,7 @@ class SqlServerGrammar extends Grammar
     {
         return sprintf('alter table %s add %s',
             $this->wrapTable($blueprint),
-            implode(', ', $this->getColumns($blueprint))
+            $this->getColumn($blueprint, $command->column)
         );
     }
 
@@ -235,25 +260,13 @@ class SqlServerGrammar extends Grammar
      */
     public function compileChange(Blueprint $blueprint, Fluent $command, Connection $connection)
     {
-        $changes = [$this->compileDropDefaultConstraint($blueprint, $command)];
-
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $sql = sprintf('alter table %s alter column %s %s',
+        return [
+            $this->compileDropDefaultConstraint($blueprint, $command),
+            sprintf('alter table %s alter column %s',
                 $this->wrapTable($blueprint),
-                $this->wrap($column),
-                $this->getType($column)
-            );
-
-            foreach ($this->modifiers as $modifier) {
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $sql .= $this->{$method}($blueprint, $column);
-                }
-            }
-
-            $changes[] = $sql;
-        }
-
-        return $changes;
+                $this->getColumn($blueprint, $command->column),
+            ),
+        ];
     }
 
     /**
@@ -401,7 +414,7 @@ class SqlServerGrammar extends Grammar
     public function compileDropDefaultConstraint(Blueprint $blueprint, Fluent $command)
     {
         $columns = $command->name === 'change'
-            ? "'".collect($blueprint->getChangedColumns())->pluck('name')->implode("','")."'"
+            ? "'".$command->column->name."'"
             : "'".implode("','", $command->columns)."'";
 
         $table = $this->wrapTable($blueprint);

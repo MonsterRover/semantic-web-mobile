@@ -15,6 +15,14 @@ use Throwable;
 class SqlServerConnection extends Connection
 {
     /**
+     * {@inheritdoc}
+     */
+    public function getDriverTitle()
+    {
+        return 'SQL Server';
+    }
+
+    /**
      * Execute a Closure within a transaction.
      *
      * @param  \Closure  $callback
@@ -124,7 +132,7 @@ class SqlServerConnection extends Connection
      *
      * @throws \RuntimeException
      */
-    public function getSchemaState(Filesystem $files = null, callable $processFactory = null)
+    public function getSchemaState(?Filesystem $files = null, ?callable $processFactory = null)
     {
         throw new RuntimeException('Schema dumping is not supported when using SQL Server.');
     }

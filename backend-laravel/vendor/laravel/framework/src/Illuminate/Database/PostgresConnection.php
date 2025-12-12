@@ -13,6 +13,14 @@ use Illuminate\Filesystem\Filesystem;
 class PostgresConnection extends Connection
 {
     /**
+     * {@inheritdoc}
+     */
+    public function getDriverTitle()
+    {
+        return 'PostgreSQL';
+    }
+
+    /**
      * Escape a binary value for safe SQL embedding.
      *
      * @param  string  $value
@@ -92,7 +100,7 @@ class PostgresConnection extends Connection
      * @param  callable|null  $processFactory
      * @return \Illuminate\Database\Schema\PostgresSchemaState
      */
-    public function getSchemaState(Filesystem $files = null, callable $processFactory = null)
+    public function getSchemaState(?Filesystem $files = null, ?callable $processFactory = null)
     {
         return new PostgresSchemaState($this, $files, $processFactory);
     }

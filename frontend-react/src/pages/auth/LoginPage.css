@@ -1,0 +1,104 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--pink-lighter), var(--background));
+  padding: var(--spacing-lg);
+}
+
+.login-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.login-card {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn var(--transition-slow);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.login-header h1 {
+  color: var(--primary-pink);
+  margin-bottom: var(--spacing-sm);
+}
+
+.login-header p {
+  color: var(--text-medium);
+  margin-bottom: 0;
+}
+
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  border-left: 4px solid var(--error);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.checkbox-group label {
+  flex-direction: row;
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: var(--spacing-sm);
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: var(--spacing-md);
+}
+
+.login-footer {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.login-footer ul {
+  list-style: none;
+  margin-top: var(--spacing-sm);
+}
+
+.login-footer li {
+  margin: var(--spacing-xs) 0;
+  font-family: monospace;
+  background: var(--pink-lighter);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin: var(--spacing-xs);
+}

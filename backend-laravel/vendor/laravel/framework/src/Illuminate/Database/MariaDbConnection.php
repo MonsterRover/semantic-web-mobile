@@ -13,6 +13,14 @@ use Illuminate\Support\Str;
 class MariaDbConnection extends MySqlConnection
 {
     /**
+     * {@inheritdoc}
+     */
+    public function getDriverTitle()
+    {
+        return 'MariaDB';
+    }
+
+    /**
      * Determine if the connected database is a MariaDB database.
      *
      * @return bool
@@ -77,7 +85,7 @@ class MariaDbConnection extends MySqlConnection
      * @param  callable|null  $processFactory
      * @return \Illuminate\Database\Schema\MariaDbSchemaState
      */
-    public function getSchemaState(Filesystem $files = null, callable $processFactory = null)
+    public function getSchemaState(?Filesystem $files = null, ?callable $processFactory = null)
     {
         return new MariaDbSchemaState($this, $files, $processFactory);
     }

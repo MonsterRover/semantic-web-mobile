@@ -1,0 +1,169 @@
+.users-page {
+  padding: var(--spacing-2xl) 0;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.page-header h1 {
+  color: var(--primary-pink);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.users-table-wrapper {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table thead {
+  background: linear-gradient(135deg, var(--primary-pink), var(--accent));
+  color: white;
+}
+
+.users-table th,
+.users-table td {
+  padding: var(--spacing-md);
+  text-align: left;
+}
+
+.users-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition-fast);
+}
+
+.users-table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.role-admin {
+  background: var(--error);
+  color: white;
+}
+
+.role-kaprodi {
+  background: var(--info);
+  color: white;
+}
+
+.role-mahasiswa {
+  background: var(--success);
+  color: white;
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit {
+  color: var(--info);
+}
+
+.btn-edit:hover {
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.btn-delete {
+  color: var(--error);
+}
+
+.btn-delete:hover {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-lg);
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn var(--transition-normal);
+}
+
+.modal-content h2 {
+  color: var(--primary-pink);
+  margin-bottom: var(--spacing-xl);
+}
+
+.modal-content .form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.modal-content label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-dark);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .users-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+}
